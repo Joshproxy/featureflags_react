@@ -1,24 +1,32 @@
-import IFeatureFlagServiceAPI from './IFeatureFlagServiceAPI';
-import FeatureFlag from '../models/FeatureFlag';
+import IFeatureflagServiceAPI from './IFeatureflagServiceAPI';
+import Featureflag from '../models/Featureflag';
 
-export default class FeatureFlagServiceAPI implements IFeatureFlagServiceAPI {
-  private FeatureFlags: FeatureFlag[];
+export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
+  private FeatureFlags: Featureflag[];
 
   constructor() {
-    const   tenants = ["DEV", "QA", "MOCK", "DEMO", "PROD"];
+    const tenants = ['DEV', 'QA', 'MOCK', 'DEMO', 'PROD'];
     this.FeatureFlags = [
-      new FeatureFlag("US12345", "EBSCONET", tenants),
-      new FeatureFlag("US12346", "EBSCONET", tenants),
-      new FeatureFlag("US12347", "EBSCONET", tenants),
-      new FeatureFlag("US12348", "WIT", tenants),
+      new Featureflag('US12345', 'EBSCONET', tenants),
+      new Featureflag('US12346', 'EBSCONET', tenants),
+      new Featureflag('US12347', 'EBSCONET', tenants),
+      new Featureflag('US12348', 'WIT', tenants)
     ];
+    let id = 1;
+    this.FeatureFlags.forEach(f => {
+      f.id = id++;
+    });
   }
 
-  get(application: string = ""): Promise<FeatureFlag[]> {
-    return Promise.resolve(this.FeatureFlags.filter(f => !application || f.application == application));
+  get(application: string = ''): Promise<Featureflag[]> {
+    return Promise.resolve(
+      this.FeatureFlags.filter(
+        f => !application || f.application == application
+      )
+    );
   }
 
-  save(featureflag: FeatureFlag): Promise<FeatureFlag> {
+  save(featureflag: Featureflag): Promise<Featureflag> {
     if (featureflag.id == 0) {
       featureflag.id = this.FeatureFlags.length + 1;
       this.FeatureFlags.push(featureflag);

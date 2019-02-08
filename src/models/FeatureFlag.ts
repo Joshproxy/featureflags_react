@@ -12,6 +12,5 @@ export default class FeatureFlag {
     tenants.forEach(t => {
       this.tenants[t] = false;
     });
-  }
-
+  }  
 }

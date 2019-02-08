@@ -1,25 +1,22 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import IFeatureflagServiceAPI from './services/IFeatureflagServiceAPI';
+import FeatureFlagServiceAPI from './services/FeatureflagServiceAPI';
+import FeatureFlagList from './components/FeatureflagList';
 
 class App extends Component {
+  private service: IFeatureflagServiceAPI;
+  constructor() {
+    super({});
+    this.service = new FeatureFlagServiceAPI();
+  }
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
+          Feature Flags
         </header>
+        <FeatureFlagList service={this.service}></FeatureFlagList>
       </div>
     );
   }
