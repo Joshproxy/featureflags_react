@@ -4,10 +4,12 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
 import FeatureFlag from '../models/Featureflag';
+import Application from '../models/Application';
 
 export interface IFeatureFlagListItemProps {
   service: IFeatureflagServiceAPI;
   featureflag: Featureflag;
+  application: Application
 }
 
 export interface IFeatureFlagListItemState {
@@ -33,7 +35,9 @@ export default class FeatureFlagListItem extends React.Component<
   }
 
   public setTenant = (tenant: string, active: boolean) => () => {
-    this.state.featureflag.tenants[tenant] = active;
+    this.state.featureflag.tenants = this.state.featureflag.tenants.map(t =>
+      t.name === tenant ? { ...t, active: active } : t
+    );
     this.setState(this.state);
   };
 
@@ -62,53 +66,68 @@ export default class FeatureFlagListItem extends React.Component<
     this.props.service.delete(this.state.featureflag.id);
   };
 
-  private getTenantArray = (): { name: string; checked: boolean }[] => {
-    return Object.entries(this.state.featureflag.tenants).map(
-      ([key, value]) => {
-        return { name: key, checked: value };
-      }
-    );
-  };
-
   public render() {
     const f = this.state.featureflag;
-    const tenantArray = this.getTenantArray();
     return (
-      <div className="row">
-        <div className="col-sm">{f.application}</div>
-        <div className="col-sm">{f.name}</div>
-        {tenantArray.map(t => (
-          <div className="col-sm">
-            <input
+      <tr>
+        <td>{this.props.application.name}</td>
+        <td>{f.name}</td>
+        {f.tenants.map(t => (
+          <td key={t.name}>
+            <input              
               name="isGoing"
               type="checkbox"
-              checked={t.checked}
+              checked={t.active}
               disabled={!this.state.editing}
-              onChange={this.setTenant(t.name, !t.checked)}
+              onChange={this.setTenant(t.name, !t.active)}
             />
-          </div>
+          </td>
         ))}
-        <div className="col-sm">{f.createDate.toLocaleDateString()}</div>
-        <div className="col-sm">
+        <td>{f.createDate.toLocaleDateString()}</td>
+        <td>
           {f.expirationDate ? f.expirationDate.toLocaleDateString() : 'none'}
-        </div>
+        </td>
 
         {this.state.editing ? (
-          <div className="col-sm">
-          <ButtonGroup>
-            <Button variant="success" active={!this.state.saving} onClick={this.save}>Save</Button>
-            <Button variant="secondary" active={!this.state.saving} onClick={this.cancelEdit}>Cancel</Button>
+          <td>
+            <ButtonGroup>
+              <Button
+                variant="success"
+                active={!this.state.saving}
+                onClick={this.save}
+              >
+                Save
+              </Button>
+              <Button
+                variant="secondary"
+                active={!this.state.saving}
+                onClick={this.cancelEdit}
+              >
+                Cancel
+              </Button>
             </ButtonGroup>
-          </div>
+          </td>
         ) : (
-          <div className="col-sm">
-          <ButtonGroup>
-            <Button variant="primary" active={!this.state.saving} onClick={this.edit}>Edit</Button>
-            <Button variant="danger" active={!this.state.saving} onClick={this.delete}>Delete</Button>
+          <td>
+            <ButtonGroup>
+              <Button
+                variant="primary"
+                active={!this.state.saving}
+                onClick={this.edit}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="danger"
+                active={!this.state.saving}
+                onClick={this.delete}
+              >
+                Delete
+              </Button>
             </ButtonGroup>
-          </div>
+          </td>
         )}
-      </div>
+      </tr>
     );
   }
 }
