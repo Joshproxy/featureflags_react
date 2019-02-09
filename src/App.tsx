@@ -7,7 +7,7 @@ import Application from './models/Application';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import { ReplaceProps } from 'react-bootstrap/helpers';
+import Form from 'react-bootstrap/Form';
 
 class App extends Component<
   {},
@@ -64,6 +64,14 @@ class App extends Component<
     return (
       <div className="App">
         <header className="App-header">Feature Flags</header>
+        <Form.Group controlId="applicationSelect">
+          <Form.Label>Application</Form.Label>
+          <Form.Control as="select" multiple>
+            {this.state.applications.map(a => (
+              <option value={a.id}>{a.name}</option>
+            ))}
+          </Form.Control>
+        </Form.Group>
         <div className="smallForm">
           <InputGroup className="mb-3">
             <FormControl
