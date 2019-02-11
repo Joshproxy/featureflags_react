@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import Featureflag from '../models/Featureflag';
-import FeatureFlagListItem from './FeatureflagListItem';
 import Button from 'react-bootstrap/Button';
-import Application from '../models/Application';
-import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
+import InputGroup from 'react-bootstrap/InputGroup';
+
+import Application from '../models/Application';
+import Featureflag from '../models/Featureflag_';
+import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI_';
+import FeatureFlagListItem from './FeatureflagListItem_';
 
 interface FeatureflagListProps {
   service: IFeatureflagServiceAPI;

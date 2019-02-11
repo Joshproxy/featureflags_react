@@ -1,10 +1,10 @@
 import * as React from 'react';
-import Featureflag from '../models/Featureflag';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlag from '../models/Featureflag';
+
 import Application from '../models/Application';
+import Featureflag from '../models/Featureflag_';
+import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI_';
 
 export interface IFeatureFlagListItemProps {
   service: IFeatureflagServiceAPI;
@@ -22,7 +22,7 @@ export default class FeatureFlagListItem extends React.Component<
   IFeatureFlagListItemProps,
   IFeatureFlagListItemState
 > {
-  private beforeEditState: FeatureFlag;
+  private beforeEditState: Featureflag;
 
   public constructor(props: IFeatureFlagListItemProps) {
     super(props);

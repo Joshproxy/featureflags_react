@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
 import './App.css';
-import IFeatureflagServiceAPI from './services/IFeatureflagServiceAPI';
-import FeatureFlagServiceAPI from './services/FeatureflagServiceAPI';
-import FeatureFlagList from './components/FeatureflagList';
-import Application from './models/Application';
+
+import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 import Form from 'react-bootstrap/Form';
+import FormControl from 'react-bootstrap/FormControl';
+import InputGroup from 'react-bootstrap/InputGroup';
+
+import FeatureFlagList from './components/FeatureflagList_';
+import Application from './models/Application';
+import FeatureFlagServiceAPI from './services/FeatureflagServiceAPI_';
+import IFeatureflagServiceAPI from './services/IFeatureflagServiceAPI_';
 
 class App extends Component<
   {},

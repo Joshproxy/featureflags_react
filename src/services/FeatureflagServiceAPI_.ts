@@ -1,6 +1,6 @@
-import IFeatureflagServiceAPI from './IFeatureflagServiceAPI';
-import Featureflag from '../models/Featureflag';
 import Application from '../models/Application';
+import Featureflag from '../models/Featureflag_';
+import IFeatureflagServiceAPI from './IFeatureflagServiceAPI_';
 
 export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
   private featureflags: Featureflag[];

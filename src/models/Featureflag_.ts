@@ -1,4 +1,4 @@
-export default class FeatureFlag {
+export default class Featureflag {
   public id: number = 0;
   public name: string = '';
   public applicationId: number = 0;
