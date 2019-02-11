@@ -6,10 +6,10 @@ import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
-import FeatureFlagList from './components/FeatureflagList_';
+import FeatureFlagList from './components/FeatureflagList';
 import Application from './models/Application';
-import FeatureFlagServiceAPI from './services/FeatureflagServiceAPI_';
-import IFeatureflagServiceAPI from './services/IFeatureflagServiceAPI_';
+import FeatureFlagServiceAPI from './services/FeatureflagServiceAPI';
+import IFeatureflagServiceAPI from './services/IFeatureflagServiceAPI';
 
 class App extends Component<
   {},

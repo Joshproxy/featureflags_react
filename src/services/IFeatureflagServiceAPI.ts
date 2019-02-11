@@ -1,5 +1,5 @@
 import Application from '../models/Application';
-import Featureflag from '../models/Featureflag_';
+import Featureflag from '../models/Featureflag';
 
 export default interface IFeatureflagServiceAPI {
     get(applicationId?: number): Promise<Featureflag[]>;

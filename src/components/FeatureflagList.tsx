@@ -4,9 +4,9 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 import Application from '../models/Application';
-import Featureflag from '../models/Featureflag_';
-import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI_';
-import FeatureFlagListItem from './FeatureflagListItem_';
+import Featureflag from '../models/Featureflag';
+import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
+import FeatureFlagListItem from './FeatureflagListItem';
 
 interface FeatureflagListProps {
   service: IFeatureflagServiceAPI;

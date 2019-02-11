@@ -3,8 +3,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 import Application from '../models/Application';
-import Featureflag from '../models/Featureflag_';
-import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI_';
+import Featureflag from '../models/Featureflag';
+import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
 
 export interface IFeatureFlagListItemProps {
   service: IFeatureflagServiceAPI;
