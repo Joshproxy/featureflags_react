@@ -6,7 +6,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlagListItem from './FeatureflagListItem';
+import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
 
 interface FeatureflagListProps {
   service: IFeatureflagServiceAPI;
@@ -27,18 +27,28 @@ export default class FeatureflagList extends Component<
     super(props);
     this.state = {
       featureFlags: [],
-      newFeatureName: '',
-      featureFilter: ''
+      newFeatureName: "",
+      featureFilter: ""
     };
-    props.service.get().then(ffs => {
+    this.getFeatureflags();
+  }
+
+  private getFeatureflags = () => {
+    this.props.service.get(this.props.application.id).then(ffs => {
       this.setState({ ...this.state, featureFlags: ffs });
     });
+  }
+
+  componentDidUpdate = (previousProps: IFeatureFlagListItemProps) => {
+    if (this.props.application.id !== previousProps.application.id) {
+      this.getFeatureflags();
+    }
   }
 
   public setNewFeatureName = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, newFeatureName: target.value });
-  };
+  }
 
   get tenantNames() {
     return this.state.featureFlags.length
@@ -54,23 +64,23 @@ export default class FeatureflagList extends Component<
     );
     this.props.service.save(newFeatureflag).then(f => {
       this.state.featureFlags.push(f);
-      this.clearInput('newFeatureNameInput');
+      this.clearInput("newFeatureNameInput");
     });
-  };
+  }
 
   public clearInput = (refName: string) => {
-    (this.refs[refName] as HTMLInputElement).value = '';
-  };
+    (this.refs[refName] as HTMLInputElement).value = "";
+  }
 
   public setFeatureFilter = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, featureFilter: target.value });
-  };
+  }
 
   public clearFilter = () => {
-    this.clearInput('featureFilterInput');
-    this.setState({ ...this.state, featureFilter: '' });
-  };
+    this.clearInput("featureFilterInput");
+    this.setState({ ...this.state, featureFilter: "" });
+  }
 
   public getFilteredFeatureflags = () => {
     return this.state.featureFlags.filter(
@@ -79,7 +89,7 @@ export default class FeatureflagList extends Component<
         f.name.toLowerCase().indexOf(this.state.featureFilter.toLowerCase()) !==
           -1
     );
-  };
+  }
 
   public render(): JSX.Element {
     return (
