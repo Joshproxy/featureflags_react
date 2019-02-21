@@ -10,11 +10,15 @@ export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
     const tenants = ['DEV', 'QA', 'MOCK', 'DEMO', 'PROD'];
     this.applications = [{id: 1, name: 'EBSCONET'}, {id: 2, name: 'WIT'}]
     this.featureflags = [
-      new Featureflag('US12345', 1, tenants),
-      new Featureflag('US12346', 1, tenants),
-      new Featureflag('US12347', 1, tenants),
-      new Featureflag('US12348', 2, tenants)
+      new Featureflag('F986', 1, tenants),
+      new Featureflag('F987.US12346', 1, tenants),
+      new Featureflag('F987.US12347', 1, tenants),
+      new Featureflag('F987.US12348', 2, tenants)
     ];
+    for(let i = 0; i< 100; i++) {
+      this.featureflags.push(new Featureflag('US1111' + i, 1, tenants));
+    }
+    this.featureflags.sort((a, b) => a.name.localeCompare(b.name));
     let id = 1;
     this.featureflags.forEach(f => {
       f.id = id++;

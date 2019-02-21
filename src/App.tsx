@@ -47,7 +47,7 @@ class App extends Component<
         this.setState({
           ...this.state,
           applications: [...this.state.applications, newApplication],
-          selectedApplication: newApplication, 
+          selectedApplication: newApplication,
           creatingApplication: false
         });
       });
@@ -60,7 +60,9 @@ class App extends Component<
 
   public selectApplication = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
-    const app = this.state.applications.filter(a => a.id === parseInt(target.value))[0];
+    const app = this.state.applications.filter(
+      a => a.id === parseInt(target.value)
+    )[0];
     this.setState({ ...this.state, selectedApplication: app });
   }
 
@@ -79,16 +81,22 @@ class App extends Component<
         {!this.state.creatingApplication && (
           <div className="smallForm">
             <InputGroup className="mb-3">
-              <InputGroup.Text id="basic-addon1">application</InputGroup.Text>
+              <InputGroup.Prepend>
+                <InputGroup.Text id="basic-addon1">application</InputGroup.Text>
+              </InputGroup.Prepend>
               <Form.Control as="select" onChange={this.selectApplication}>
                 {this.state.applications.map(a => (
-                  <option key={a.id} value={a.id}>{a.name}</option>
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
                 ))}
               </Form.Control>
               <InputGroup.Append>
                 <Button
                   variant="secondary"
-                  onClick={() => this.setState({...this.state, creatingApplication: true})}
+                  onClick={() =>
+                    this.setState({ ...this.state, creatingApplication: true })
+                  }
                 >
                   create new
                 </Button>
@@ -114,7 +122,9 @@ class App extends Component<
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => this.setState({...this.state, creatingApplication: false})}
+                  onClick={() =>
+                    this.setState({ ...this.state, creatingApplication: false })
+                  }
                 >
                   cancel
                 </Button>

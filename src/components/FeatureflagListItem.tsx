@@ -1,6 +1,9 @@
+import 'react-datepicker/dist/react-datepicker.css';
+
 import * as React from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import DatePicker from 'react-datepicker';
 
 import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
@@ -9,7 +12,7 @@ import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
 export interface IFeatureFlagListItemProps {
   service: IFeatureflagServiceAPI;
   featureflag: Featureflag;
-  application: Application
+  application: Application;
 }
 
 export interface IFeatureFlagListItemState {
@@ -39,6 +42,11 @@ export default class FeatureFlagListItem extends React.Component<
       t.name === tenant ? { ...t, active: active } : t
     );
     this.setState(this.state);
+  }
+
+  public setExpiration = (expiration: Date) => {
+    this.state.featureflag.expirationDate = expiration;
+    this.setState(this.state);
   };
 
   public save = () => {
@@ -46,12 +54,12 @@ export default class FeatureFlagListItem extends React.Component<
     this.props.service.save(this.state.featureflag).then(f => {
       this.setState({ featureflag: f, editing: false, saving: false });
     });
-  };
+  }
 
   public edit = () => {
     this.beforeEditState = { ...this.state.featureflag };
     this.setState({ ...this.state, editing: true });
-  };
+  }
 
   public cancelEdit = () => {
     this.setState({
@@ -59,22 +67,21 @@ export default class FeatureFlagListItem extends React.Component<
       featureflag: this.beforeEditState,
       editing: false
     });
-  };
+  }
 
   public delete = () => {
     this.setState({ ...this.state, saving: true });
     this.props.service.delete(this.state.featureflag.id);
-  };
+  }
 
   public render() {
     const f = this.state.featureflag;
     return (
       <tr>
-        <td>{this.props.application.name}</td>
         <td>{f.name}</td>
         {f.tenants.map(t => (
-          <td key={t.name}>
-            <input              
+          <td key={t.name} className="text-center">
+            <input
               name="isGoing"
               type="checkbox"
               checked={t.active}
@@ -85,7 +92,16 @@ export default class FeatureFlagListItem extends React.Component<
         ))}
         <td>{f.createDate.toLocaleDateString()}</td>
         <td>
-          {f.expirationDate ? f.expirationDate.toLocaleDateString() : 'none'}
+          {this.state.editing ? (
+            <DatePicker
+              onChange={this.setExpiration}
+              selected={f.expirationDate}
+            />
+          ) : f.expirationDate ? (
+            f.expirationDate.toLocaleDateString()
+          ) : (
+            "none"
+          )}
         </td>
 
         {this.state.editing ? (

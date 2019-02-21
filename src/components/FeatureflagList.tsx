@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
@@ -77,6 +78,11 @@ export default class FeatureflagList extends Component<
     this.setState({ ...this.state, featureFilter: target.value });
   }
 
+  public setOverride = (event: React.FormEvent<any>) => {
+    // const target = event.target as HTMLInputElement;
+    // set override
+  }
+
   public clearFilter = () => {
     this.clearInput("featureFilterInput");
     this.setState({ ...this.state, featureFilter: "" });
@@ -132,32 +138,48 @@ export default class FeatureflagList extends Component<
           </InputGroup>
         </div>
 
-        <table className="table ">
-          <thead>
-            <tr>
-              <th scope="col">Application</th>
-              <th scope="col">Name</th>
-              {this.tenantNames.map(t => (
-                <th key={t} scope="col">
-                  {t}
+        <div className="tableFixHead">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">
+                  <div>Name</div>
+                  <div>Override</div>
                 </th>
+                {this.tenantNames.map(t => (
+                  <th key={t} scope="col" className="text-center">
+                    <div>{t}</div>
+                    <Form.Control
+                      as="select"
+                      onChange={this.setOverride}
+                      style={{ width: 100 + "px" }}
+                    >
+                      <option key="" value="" />
+                      {this.tenantNames.map(a => (
+                        <option key={a} value={a}>
+                          {a}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </th>
+                ))}
+                <th scope="col">Creation Date</th>
+                <th scope="col">Expiration Date</th>
+                <th scope="col" />
+              </tr>
+            </thead>
+            <tbody>
+              {this.getFilteredFeatureflags().map(f => (
+                <FeatureFlagListItem
+                  key={f.id}
+                  featureflag={f}
+                  service={this.props.service}
+                  application={this.props.application}
+                />
               ))}
-              <th scope="col">Creation Date</th>
-              <th scope="col">Expiration Date</th>
-              <th scope="col" />
-            </tr>
-          </thead>
-          <tbody>
-            {this.getFilteredFeatureflags().map(f => (
-              <FeatureFlagListItem
-                key={f.id}
-                featureflag={f}
-                service={this.props.service}
-                application={this.props.application}
-              />
-            ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
