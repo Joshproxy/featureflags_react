@@ -7,7 +7,9 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
+import FeatureFlagListItem, {
+  IFeatureFlagListItemProps
+} from './FeatureflagListItem';
 
 interface FeatureflagListProps {
   service: IFeatureflagServiceAPI;
@@ -18,6 +20,7 @@ interface FeatureflagListState {
   featureFlags: Featureflag[];
   newFeatureName: string;
   featureFilter: string;
+  tenants: { name: string; override: string }[];
 }
 
 export default class FeatureflagList extends Component<
@@ -28,33 +31,35 @@ export default class FeatureflagList extends Component<
     super(props);
     this.state = {
       featureFlags: [],
-      newFeatureName: "",
-      featureFilter: ""
+      newFeatureName: '',
+      featureFilter: '',
+      tenants: []
     };
     this.getFeatureflags();
   }
 
   private getFeatureflags = () => {
     this.props.service.get(this.props.application.id).then(ffs => {
+      let tenants = ffs[0].tenants.map(t => {
+        return { name: t.name, override: '' };
+      });
       this.setState({ ...this.state, featureFlags: ffs });
     });
-  }
+  };
 
   componentDidUpdate = (previousProps: IFeatureFlagListItemProps) => {
     if (this.props.application.id !== previousProps.application.id) {
       this.getFeatureflags();
     }
-  }
+  };
 
   public setNewFeatureName = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, newFeatureName: target.value });
-  }
+  };
 
   get tenantNames() {
-    return this.state.featureFlags.length
-      ? this.state.featureFlags[0].tenants.map(t => t.name)
-      : [];
+    return this.state.tenants.map(t => t.name);
   }
 
   public createNewFeatureFlag = () => {
@@ -65,28 +70,33 @@ export default class FeatureflagList extends Component<
     );
     this.props.service.save(newFeatureflag).then(f => {
       this.state.featureFlags.push(f);
-      this.clearInput("newFeatureNameInput");
+      this.clearInput('newFeatureNameInput');
     });
-  }
+  };
 
   public clearInput = (refName: string) => {
-    (this.refs[refName] as HTMLInputElement).value = "";
-  }
+    (this.refs[refName] as HTMLInputElement).value = '';
+  };
 
   public setFeatureFilter = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, featureFilter: target.value });
-  }
+  };
 
-  public setOverride = (event: React.FormEvent<any>) => {
-    // const target = event.target as HTMLInputElement;
-    // set override
-  }
+  public setOverride = (tenant: { name: string; override: string }) => (
+    event: React.FormEvent<any>
+  ) => {
+    const target = event.target as HTMLInputElement;
+    let updatedTenants = this.state.tenants.map(t =>
+      t.name == tenant.name ? { ...t, override: target.value } : t
+    );
+    this.setState({ ...this.state, tenants: updatedTenants });
+  };
 
   public clearFilter = () => {
-    this.clearInput("featureFilterInput");
-    this.setState({ ...this.state, featureFilter: "" });
-  }
+    this.clearInput('featureFilterInput');
+    this.setState({ ...this.state, featureFilter: '' });
+  };
 
   public getFilteredFeatureflags = () => {
     return this.state.featureFlags.filter(
@@ -95,7 +105,7 @@ export default class FeatureflagList extends Component<
         f.name.toLowerCase().indexOf(this.state.featureFilter.toLowerCase()) !==
           -1
     );
-  }
+  };
 
   public render(): JSX.Element {
     return (
@@ -146,13 +156,14 @@ export default class FeatureflagList extends Component<
                   <div>Name</div>
                   <div>Override</div>
                 </th>
-                {this.tenantNames.map(t => (
-                  <th key={t} scope="col" className="text-center">
+                {this.state.tenants.map(t => (
+                  <th key={t.name} scope="col" className="text-center">
                     <div>{t}</div>
                     <Form.Control
                       as="select"
-                      onChange={this.setOverride}
-                      style={{ width: 100 + "px" }}
+                      onChange={this.setOverride(t)}
+                      value={t.override}
+                      style={{ width: 100 + 'px' }}
                     >
                       <option key="" value="" />
                       {this.tenantNames.map(a => (
