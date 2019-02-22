@@ -4,17 +4,18 @@ import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
-import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
+import FeatureFlagListItem, {
+  IFeatureFlagListItemProps
+} from './FeatureflagListItem';
 
-interface FeatureflagListProps {
+interface IFeatureflagListProps {
   service: IFeatureflagServiceAPI;
-  application: Application;
+  applicationId: number;
 }
 
-interface FeatureflagListState {
+interface IFeatureflagListState {
   featureFlags: Featureflag[];
   newFeatureName: string;
   featureFilter: string;
@@ -22,10 +23,10 @@ interface FeatureflagListState {
 }
 
 export default class FeatureflagList extends Component<
-  FeatureflagListProps,
-  FeatureflagListState
+  IFeatureflagListProps,
+  IFeatureflagListState
 > {
-  public constructor(props: FeatureflagListProps) {
+  public constructor(props: IFeatureflagListProps) {
     super(props);
     this.state = {
       featureFlags: [],
@@ -37,17 +38,18 @@ export default class FeatureflagList extends Component<
   }
 
   private getFeatureflags = () => {
-    this.props.service.get(this.props.application.id).then(ffs => {
-      if(!ffs.length) return;
-      let tenants = ffs[0].tenants.map(t => {
-        return { name: t.name, override: '' };
-      });
+    this.props.service.get(this.props.applicationId).then(ffs => {
+      let tenants = ffs.length
+        ? ffs[0].tenants.map(t => {
+            return { name: t.name, override: '' };
+          })
+        : this.state.tenants;
       this.setState({ ...this.state, featureFlags: ffs, tenants: tenants });
     });
   };
 
-  componentDidUpdate = (previousProps: IFeatureFlagListItemProps) => {
-    if (this.props.application.id !== previousProps.application.id) {
+  componentDidUpdate = (previousProps: IFeatureflagListProps) => {
+    if (this.props.applicationId !== previousProps.applicationId) {
       this.getFeatureflags();
     }
   };
@@ -64,12 +66,12 @@ export default class FeatureflagList extends Component<
   public createNewFeatureFlag = () => {
     const newFeatureflag = new Featureflag(
       this.state.newFeatureName,
-      this.props.application.id,
+      this.props.applicationId,
       this.tenantNames
     );
     this.props.service.save(newFeatureflag).then(f => {
-      this.state.featureFlags.push(f);
-      this.clearInput('newFeatureNameInput');
+      this.setState({...this.state, featureFlags: [...this.state.featureFlags, f]});
+      this.clearInput('newFeatureNameInput');      
     });
   };
 
@@ -153,7 +155,6 @@ export default class FeatureflagList extends Component<
               <tr>
                 <th scope="col">
                   <div>Name</div>
-                  <div>Override</div>
                 </th>
                 {this.state.tenants.map(t => (
                   <th key={t.name} scope="col" className="text-center">
@@ -166,7 +167,7 @@ export default class FeatureflagList extends Component<
                     >
                       <option key="" value="" />
                       {this.tenantNames.map(a => (
-                        <option key={a} value={a}>
+                        <option key={a} value={a} disabled={a == t.name}>
                           {a}
                         </option>
                       ))}
@@ -184,7 +185,7 @@ export default class FeatureflagList extends Component<
                   key={f.id}
                   featureflag={f}
                   service={this.props.service}
-                  application={this.props.application}
+                  overriddenTenants={this.state.tenants.filter(t => t.override).map(t => t.name)}
                 />
               ))}
             </tbody>

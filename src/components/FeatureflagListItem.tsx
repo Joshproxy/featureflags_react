@@ -5,14 +5,13 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import DatePicker from 'react-datepicker';
 
-import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
 
 export interface IFeatureFlagListItemProps {
   service: IFeatureflagServiceAPI;
   featureflag: Featureflag;
-  application: Application;
+  overriddenTenants: string[];
 }
 
 export interface IFeatureFlagListItemState {
@@ -76,11 +75,14 @@ export default class FeatureFlagListItem extends React.Component<
 
   public render() {
     const f = this.state.featureflag;
+    const rowClassname = f.expirationDate == null? '' : 'expiringFlag';
     return (
-      <tr>
+      <tr className={rowClassname}>
         <td>{f.name}</td>
-        {f.tenants.map(t => (
-          <td key={t.name} className="text-center">
+        {f.tenants.map(t => {
+        let c = this.props.overriddenTenants.some(tn => tn == t.name) ? 'overriddenTenant' : '';  
+          return (          
+          <td key={t.name} className={"text-center " + c}>
             <input
               name="isGoing"
               type="checkbox"
@@ -89,7 +91,9 @@ export default class FeatureFlagListItem extends React.Component<
               onChange={this.setTenant(t.name, !t.active)}
             />
           </td>
-        ))}
+        )}
+        )}
+
         <td>{f.createDate.toLocaleDateString()}</td>
         <td>
           {this.state.editing ? (

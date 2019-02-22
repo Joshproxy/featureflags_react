@@ -33,3 +33,11 @@
 table  { border-collapse: collapse; width: 100%; }
 th, td { padding: 8px 16px; z-index: 2; }
 th     { background:#eee; }
+
+.expiringFlag {
+  background-color: #ffcccc;
+}
+
+.overriddenTenant {
+  background-color: lightgoldenrodyellow;
+}

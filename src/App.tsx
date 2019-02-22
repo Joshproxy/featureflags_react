@@ -15,7 +15,7 @@ class App extends Component<
   {},
   {
     applications: Application[];
-    selectedApplication: Application | null;
+    selectedApplicationId: number;
     newApplicationName: string;
     creatingApplication: boolean;
   }
@@ -26,7 +26,7 @@ class App extends Component<
     this.service = new FeatureFlagServiceAPI();
     this.state = {
       applications: [],
-      selectedApplication: null,
+      selectedApplicationId: 0,
       newApplicationName: "",
       creatingApplication: false
     };
@@ -35,7 +35,7 @@ class App extends Component<
       this.setState({
         ...this.state,
         applications: apps,
-        selectedApplication: apps[0]
+        selectedApplicationId: apps[0].id
       });
     });
   }
@@ -46,8 +46,7 @@ class App extends Component<
       .then(newApplication => {
         this.setState({
           ...this.state,
-          applications: [...this.state.applications, newApplication],
-          selectedApplication: newApplication,
+          selectedApplicationId: newApplication.id,
           creatingApplication: false
         });
       });
@@ -60,10 +59,7 @@ class App extends Component<
 
   public selectApplication = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
-    const app = this.state.applications.filter(
-      a => a.id === parseInt(target.value)
-    )[0];
-    this.setState({ ...this.state, selectedApplication: app });
+    this.setState({ ...this.state, selectedApplicationId: parseInt(target.value) });
   }
 
   public setApplication = () => {};
@@ -84,7 +80,7 @@ class App extends Component<
               <InputGroup.Prepend>
                 <InputGroup.Text id="basic-addon1">application</InputGroup.Text>
               </InputGroup.Prepend>
-              <Form.Control as="select" onChange={this.selectApplication}>
+              <Form.Control as="select" onChange={this.selectApplication} value={this.state.selectedApplicationId.toString()}>
                 {this.state.applications.map(a => (
                   <option key={a.id} value={a.id}>
                     {a.name}
@@ -132,10 +128,10 @@ class App extends Component<
             </InputGroup>
           </div>
         )}
-        {this.state.selectedApplication && (
+        {this.state.selectedApplicationId && (
           <FeatureFlagList
             service={this.service}
-            application={this.state.selectedApplication!}
+            applicationId={this.state.selectedApplicationId}
           />
         )}
       </div>
