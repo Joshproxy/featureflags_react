@@ -7,9 +7,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlagListItem, {
-  IFeatureFlagListItemProps
-} from './FeatureflagListItem';
+import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
 
 interface FeatureflagListProps {
   service: IFeatureflagServiceAPI;
@@ -40,10 +38,11 @@ export default class FeatureflagList extends Component<
 
   private getFeatureflags = () => {
     this.props.service.get(this.props.application.id).then(ffs => {
+      if(!ffs.length) return;
       let tenants = ffs[0].tenants.map(t => {
         return { name: t.name, override: '' };
       });
-      this.setState({ ...this.state, featureFlags: ffs });
+      this.setState({ ...this.state, featureFlags: ffs, tenants: tenants });
     });
   };
 
@@ -158,7 +157,7 @@ export default class FeatureflagList extends Component<
                 </th>
                 {this.state.tenants.map(t => (
                   <th key={t.name} scope="col" className="text-center">
-                    <div>{t}</div>
+                    <div>{t.name}</div>
                     <Form.Control
                       as="select"
                       onChange={this.setOverride(t)}
