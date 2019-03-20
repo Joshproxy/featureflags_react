@@ -156,6 +156,9 @@ export default class FeatureflagList extends Component<
                 <th scope="col">
                   <div>Name</div>
                 </th>
+                <th scope="col">
+                  <div>Rally</div>
+                </th>
                 {this.state.tenants.map(t => (
                   <th key={t.name} scope="col" className="text-center">
                     <div>{t.name}</div>

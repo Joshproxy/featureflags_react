@@ -5,6 +5,7 @@ export default class Featureflag {
   public tenants: Array<{ name: string; active: boolean }> = [];
   public createDate: Date = new Date();
   public expirationDate: Date | null = null;
+  public rallyContextIds: string[] = [];
 
   constructor(name: string, applicationId: number, tenants: string[]) {
     this.name = name;
@@ -13,4 +14,5 @@ export default class Featureflag {
       return { name: t, active: false };
     });
   }
+
 }

@@ -26,6 +26,9 @@ export default class FeatureFlagListItem extends React.Component<
 > {
   private beforeEditState: Featureflag;
 
+  private readonly rallyBase = 'https://rally1.rallydev.com/#/search?keywords=';
+
+
   public constructor(props: IFeatureFlagListItemProps) {
     super(props);
     this.beforeEditState = this.props.featureflag;
@@ -36,15 +39,33 @@ export default class FeatureFlagListItem extends React.Component<
     };
   }
 
+  public rallyUrl = (rallyId: string) =>
+    rallyId ? '' : this.rallyBase + rallyId;
+
   public setTenant = (tenant: string, active: boolean) => () => {
     this.state.featureflag.tenants = this.state.featureflag.tenants.map(t =>
       t.name === tenant ? { ...t, active: active } : t
     );
     this.setState(this.state);
-  }
+  };
 
   public setExpiration = (expiration: Date) => {
     this.state.featureflag.expirationDate = expiration;
+    this.setState(this.state);
+  };
+
+  public addRallyId = () => {
+    this.state.featureflag.rallyContextIds = [
+      ...this.state.featureflag.rallyContextIds,
+      ''
+    ];
+    this.setState({ ...this.state, featureflag: this.state.featureflag });
+  };
+
+  public setRallyId = (index: number) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    this.state.featureflag.rallyContextIds[index] = event.currentTarget.value;
     this.setState(this.state);
   };
 
@@ -53,12 +74,12 @@ export default class FeatureFlagListItem extends React.Component<
     this.props.service.save(this.state.featureflag).then(f => {
       this.setState({ featureflag: f, editing: false, saving: false });
     });
-  }
+  };
 
   public edit = () => {
     this.beforeEditState = { ...this.state.featureflag };
     this.setState({ ...this.state, editing: true });
-  }
+  };
 
   public cancelEdit = () => {
     this.setState({
@@ -66,33 +87,58 @@ export default class FeatureFlagListItem extends React.Component<
       featureflag: this.beforeEditState,
       editing: false
     });
-  }
+  };
 
   public delete = () => {
     this.setState({ ...this.state, saving: true });
     this.props.service.delete(this.state.featureflag.id);
-  }
+  };
 
   public render() {
     const f = this.state.featureflag;
-    const rowClassname = f.expirationDate == null? '' : 'expiringFlag';
+    const rowClassname = f.expirationDate == null ? '' : 'expiringFlag';
     return (
       <tr className={rowClassname}>
         <td>{f.name}</td>
+        <td>
+          {f.rallyContextIds.map((id: string, i: number) =>
+            this.state.editing ? (
+              <div key={i}>
+                <input
+                  name={'rallyId_' + id}
+                  type="text"
+                  value={id}
+                  onChange={this.setRallyId(i)}
+                />
+              </div>
+            ) : (
+              <div key={i}>
+                <a href={this.rallyUrl(id)}>{id}</a>
+              </div>
+            )
+          )}
+          {this.state.editing && (
+            <button name="newId" onClick={this.addRallyId}>
+              add
+            </button>
+          )}
+        </td>
         {f.tenants.map(t => {
-        let c = this.props.overriddenTenants.some(tn => tn == t.name) ? 'overriddenTenant' : '';  
-          return (          
-          <td key={t.name} className={"text-center " + c}>
-            <input
-              name="isGoing"
-              type="checkbox"
-              checked={t.active}
-              disabled={!this.state.editing}
-              onChange={this.setTenant(t.name, !t.active)}
-            />
-          </td>
-        )}
-        )}
+          let c = this.props.overriddenTenants.some(tn => tn == t.name)
+            ? 'overriddenTenant'
+            : '';
+          return (
+            <td key={t.name} className={'text-center ' + c}>
+              <input
+                name="isGoing"
+                type="checkbox"
+                checked={t.active}
+                disabled={!this.state.editing}
+                onChange={this.setTenant(t.name, !t.active)}
+              />
+            </td>
+          );
+        })}
 
         <td>{f.createDate.toLocaleDateString()}</td>
         <td>
@@ -104,7 +150,7 @@ export default class FeatureFlagListItem extends React.Component<
           ) : f.expirationDate ? (
             f.expirationDate.toLocaleDateString()
           ) : (
-            "none"
+            'none'
           )}
         </td>
 
