@@ -1,0 +1,44 @@
+.featureflagList {
+  height: calc(100% - 150px);
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tableFixHead {
+  overflow-y: auto;
+  height: calc(100% - 110px);
+  border: 1px solid gainsboro;
+}
+.tableFixHead th {
+  position: sticky;
+  top: -1px;
+}
+
+/* Just common table stuff. Really. */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  padding: 8px;
+  z-index: 2;
+}
+th {
+  background: #eee;
+}
+
+.sortField {
+  cursor: pointer;
+  background-color: gainsboro;
+  border-radius: 10px;
+  border: 1px solid gray;
+  padding: 0.05em 1em;
+  display: inline-block;
+  margin-bottom: 0.3em;
+}
+
+.sortField:hover {
+  background-color: gray;
+}

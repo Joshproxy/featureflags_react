@@ -1,3 +1,5 @@
+import './FeatureflagList.css';
+
 import { number } from 'prop-types';
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
@@ -7,7 +9,9 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
+import FeatureFlagListItem, {
+  IFeatureFlagListItemProps
+} from './FeatureflagListItem';
 
 interface IFeatureflagListProps {
   service: IFeatureflagServiceAPI;
@@ -30,8 +34,8 @@ export default class FeatureflagList extends Component<
     super(props);
     this.state = {
       featureFlags: [],
-      newFeatureName: "",
-      featureFilter: "",
+      newFeatureName: '',
+      featureFilter: '',
       tenants: [],
       featureFlagSort: this.featureflagCreateDateSort
     };
@@ -42,23 +46,23 @@ export default class FeatureflagList extends Component<
     this.props.service.get(this.props.applicationId).then(ffs => {
       let tenants = ffs.length
         ? ffs[0].tenants.map(t => {
-            return { name: t.name, override: "" };
+            return { name: t.name, override: '' };
           })
         : this.state.tenants;
       this.setState({ ...this.state, featureFlags: ffs, tenants: tenants });
     });
-  }
+  };
 
   componentDidUpdate = (previousProps: IFeatureflagListProps) => {
     if (this.props.applicationId !== previousProps.applicationId) {
       this.getFeatureflags();
     }
-  }
+  };
 
   public setNewFeatureName = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, newFeatureName: target.value });
-  }
+  };
 
   get tenantNames() {
     return this.state.tenants.map(t => t.name);
@@ -75,18 +79,18 @@ export default class FeatureflagList extends Component<
         ...this.state,
         featureFlags: [...this.state.featureFlags, f]
       });
-      this.clearInput("newFeatureNameInput");
+      this.clearInput('newFeatureNameInput');
     });
-  }
+  };
 
   public clearInput = (refName: string) => {
-    (this.refs[refName] as HTMLInputElement).value = "";
-  }
+    (this.refs[refName] as HTMLInputElement).value = '';
+  };
 
   public setFeatureFilter = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, featureFilter: target.value });
-  }
+  };
 
   public setOverride = (tenant: { name: string; override: string }) => (
     event: React.FormEvent<any>
@@ -96,12 +100,12 @@ export default class FeatureflagList extends Component<
       t.name == tenant.name ? { ...t, override: target.value } : t
     );
     this.setState({ ...this.state, tenants: updatedTenants });
-  }
+  };
 
   public clearFilter = () => {
-    this.clearInput("featureFilterInput");
-    this.setState({ ...this.state, featureFilter: "" });
-  }
+    this.clearInput('featureFilterInput');
+    this.setState({ ...this.state, featureFilter: '' });
+  };
 
   public getFilteredFeatureflags = (): Featureflag[] => {
     const filterValue = this.state.featureFilter.toLowerCase();
@@ -113,14 +117,14 @@ export default class FeatureflagList extends Component<
         ) ||
         f.name.toLowerCase().indexOf(filterValue) !== -1
     );
-  }
+  };
 
   private featureflagCreateDateSort = (
     ffA: Featureflag,
     ffB: Featureflag
   ): number => {
-    return ffA.createDate.valueOf() - ffB.createDate.valueOf();
-  }
+    return ffB.createDate.valueOf() - ffA.createDate.valueOf();
+  };
 
   private featureflagTenantSort = (tenant: string) => (
     ffA: Featureflag,
@@ -133,21 +137,21 @@ export default class FeatureflagList extends Component<
       return this.featureflagCreateDateSort(ffA, ffB);
     }
     return ffA_active ? -1 : 1;
-  }
+  };
 
   public applyFeatureflagSort = (
     featureflags: Featureflag[]
   ): Featureflag[] => {
     return featureflags.sort(this.state.featureFlagSort);
-  }
+  };
 
-  public setFeatureflagSort = (tenant: string = "") => () => {
+  public setFeatureflagSort = (tenant: string = '') => () => {
     const sortFunc =
-      tenant !== ""
+      tenant !== ''
         ? this.featureflagTenantSort(tenant)
         : this.featureflagCreateDateSort;
     this.setState({ ...this.state, featureFlagSort: sortFunc });
-  }
+  };
 
   public render(): JSX.Element {
     return (
@@ -201,18 +205,18 @@ export default class FeatureflagList extends Component<
                   <div>Rally</div>
                 </th>
                 {this.state.tenants.map(t => (
-                  <th
-                    key={t.name}
-                    scope="col"
-                    className="text-center"
-                    onClick={this.setFeatureflagSort(t.name)}
-                  >
-                    <div>{t.name}</div>
+                  <th key={t.name} scope="col" className="text-center">
+                    <div
+                      className="sortField"
+                      onClick={this.setFeatureflagSort(t.name)}
+                    >
+                      {t.name}
+                    </div>
                     <Form.Control
                       as="select"
                       onChange={this.setOverride(t)}
                       value={t.override}
-                      style={{ width: 100 + "px" }}
+                      style={{ width: 100 + 'px', display: 'inline-block' }}
                     >
                       <option key="" value="">
                         ----
@@ -227,8 +231,17 @@ export default class FeatureflagList extends Component<
                     </Form.Control>
                   </th>
                 ))}
-                <th scope="col">Creation Date</th>
-                <th scope="col" onClick={this.setFeatureflagSort()}>Expiration Date</th>
+                <th scope="col" className="text-center">
+                  <div
+                    className="sortField "
+                    onClick={this.setFeatureflagSort()}
+                  >
+                    Creation Date
+                  </div>
+                </th>
+                <th scope="col" className="text-center">
+                  Expiration Date
+                </th>
                 <th scope="col" />
               </tr>
             </thead>

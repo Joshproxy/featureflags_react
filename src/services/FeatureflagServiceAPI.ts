@@ -3,10 +3,14 @@ import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from './IFeatureflagServiceAPI';
 
 export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
-  private featureflags: Featureflag[];
-  private applications: Application[];
+  private featureflags: Featureflag[] = [];
+  private applications: Application[] = [];
 
   constructor() {
+    this.createMockedData();
+  }
+
+  private createMockedData = () => {
     const tenants = ['DEV', 'QA', 'MOCK', 'DEMO', 'PROD'];
     this.applications = [{id: 1, name: 'EBSCONET'}, {id: 2, name: 'WIT'}]
     this.featureflags = [
@@ -15,8 +19,13 @@ export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
       new Featureflag('F987.US12347', 1, tenants),
       new Featureflag('F987.US12348', 2, tenants)
     ];
+    this.featureflags[0].rallyContextIds.push('F13529');
+    this.featureflags[0].rallyContextIds.push('US12345');
     for(let i = 0; i< 100; i++) {
-      this.featureflags.push(new Featureflag('US1111' + i, 1, tenants));
+      let newFF = new Featureflag('US1111' + i, 1, tenants);      
+      newFF.createDate.setDate(newFF.createDate.getDate() - i);
+      newFF.tenants[4].active = i % 2 == 0;
+      this.featureflags.push(newFF);
     }
     this.featureflags.sort((a, b) => a.name.localeCompare(b.name));
     let id = 1;

@@ -28,7 +28,6 @@ export default class FeatureFlagListItem extends React.Component<
 
   private readonly rallyBase = 'https://rally1.rallydev.com/#/search?keywords=';
 
-
   public constructor(props: IFeatureFlagListItemProps) {
     super(props);
     this.beforeEditState = this.props.featureflag;
@@ -140,8 +139,10 @@ export default class FeatureFlagListItem extends React.Component<
           );
         })}
 
-        <td>{f.createDate.toLocaleDateString()}</td>
-        <td>
+        <td className="text-center" title={f.createDate.toLocaleTimeString()}>
+          {f.createDate.toLocaleDateString()}
+        </td>
+        <td className="text-center">
           {this.state.editing ? (
             <DatePicker
               onChange={this.setExpiration}
