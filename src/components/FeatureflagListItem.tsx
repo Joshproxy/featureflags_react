@@ -39,7 +39,7 @@ export default class FeatureFlagListItem extends React.Component<
   }
 
   public rallyUrl = (rallyId: string) =>
-    rallyId ? '' : this.rallyBase + rallyId;
+    rallyId === '' ? '' : this.rallyBase + rallyId;
 
   public setTenant = (tenant: string, active: boolean) => () => {
     this.state.featureflag.tenants = this.state.featureflag.tenants.map(t =>
