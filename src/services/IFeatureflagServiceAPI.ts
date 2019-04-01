@@ -6,5 +6,5 @@ export default interface IFeatureflagServiceAPI {
     save(featureflag: Featureflag): Promise<Featureflag>;
     delete(id: number): Promise<void>;
     getApplications(): Promise<Application[]>;
-    createNewApplication(name: string): Promise<Application>;
+    createNewApplication(name: string, tenants: string[]): Promise<Application>;
 }

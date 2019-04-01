@@ -12,7 +12,7 @@ export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
 
   private createMockedData = () => {
     const tenants = ['DEV', 'QA', 'MOCK', 'DEMO', 'PROD'];
-    this.applications = [{id: 1, name: 'EBSCONET'}, {id: 2, name: 'WIT'}]
+    this.applications = [{id: 1, name: 'EBSCONET', tenants}, {id: 2, name: 'WIT', tenants}]
     this.featureflags = [
       new Featureflag('F986', 1, tenants),
       new Featureflag('F987.US12346', 1, tenants),
@@ -63,8 +63,8 @@ export default class FeatureFlagServiceAPI implements IFeatureflagServiceAPI {
     return Promise.resolve(this.applications);
   }
 
-  createNewApplication(name: string): Promise<Application> {
-    const application = {id: this.applications.length + 1, name: name};
+  createNewApplication(name: string, tenants: string[]): Promise<Application> {
+    const application = {id: this.applications.length + 1, name, tenants};
     this.applications.push(application);
     return Promise.resolve(application);
   }

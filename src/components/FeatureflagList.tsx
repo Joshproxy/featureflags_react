@@ -7,11 +7,10 @@ import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
+import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
-import FeatureFlagListItem, {
-  IFeatureFlagListItemProps
-} from './FeatureflagListItem';
+import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
 
 interface IFeatureflagListProps {
   service: IFeatureflagServiceAPI;
@@ -34,35 +33,46 @@ export default class FeatureflagList extends Component<
     super(props);
     this.state = {
       featureFlags: [],
-      newFeatureName: '',
-      featureFilter: '',
+      newFeatureName: "",
+      featureFilter: "",
       tenants: [],
       featureFlagSort: this.featureflagCreateDateSort
     };
-    this.getFeatureflags();
+    this.getTenants().then(() => this.getFeatureflags());
+  }
+
+  private getTenants = () => {
+    return this.props.service.getApplications().then(apps => {
+      let tenants = apps
+        .filter(a => a.id === this.props.applicationId)[0]
+        .tenants.map(t => {
+          return { name: t, override: "" };
+        });
+      this.setState({
+        ...this.state,
+        tenants
+      });
+      return tenants;
+    });
   }
 
   private getFeatureflags = () => {
-    this.props.service.get(this.props.applicationId).then(ffs => {
-      let tenants = ffs.length
-        ? ffs[0].tenants.map(t => {
-            return { name: t.name, override: '' };
-          })
-        : this.state.tenants;
-      this.setState({ ...this.state, featureFlags: ffs, tenants: tenants });
+    return this.props.service.get(this.props.applicationId).then(ffs => {
+      this.setState({ ...this.state, featureFlags: ffs });
+      return ffs;
     });
-  };
+  }
 
   componentDidUpdate = (previousProps: IFeatureflagListProps) => {
     if (this.props.applicationId !== previousProps.applicationId) {
       this.getFeatureflags();
     }
-  };
+  }
 
   public setNewFeatureName = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, newFeatureName: target.value });
-  };
+  }
 
   get tenantNames() {
     return this.state.tenants.map(t => t.name);
@@ -79,18 +89,18 @@ export default class FeatureflagList extends Component<
         ...this.state,
         featureFlags: [...this.state.featureFlags, f]
       });
-      this.clearInput('newFeatureNameInput');
+      this.clearInput("newFeatureNameInput");
     });
-  };
+  }
 
   public clearInput = (refName: string) => {
-    (this.refs[refName] as HTMLInputElement).value = '';
-  };
+    (this.refs[refName] as HTMLInputElement).value = "";
+  }
 
   public setFeatureFilter = (event: React.FormEvent<any>) => {
     const target = event.target as HTMLInputElement;
     this.setState({ ...this.state, featureFilter: target.value });
-  };
+  }
 
   public setOverride = (tenant: { name: string; override: string }) => (
     event: React.FormEvent<any>
@@ -100,12 +110,12 @@ export default class FeatureflagList extends Component<
       t.name == tenant.name ? { ...t, override: target.value } : t
     );
     this.setState({ ...this.state, tenants: updatedTenants });
-  };
+  }
 
   public clearFilter = () => {
-    this.clearInput('featureFilterInput');
-    this.setState({ ...this.state, featureFilter: '' });
-  };
+    this.clearInput("featureFilterInput");
+    this.setState({ ...this.state, featureFilter: "" });
+  }
 
   public getFilteredFeatureflags = (): Featureflag[] => {
     const filterValue = this.state.featureFilter.toLowerCase();
@@ -117,14 +127,14 @@ export default class FeatureflagList extends Component<
         ) ||
         f.name.toLowerCase().indexOf(filterValue) !== -1
     );
-  };
+  }
 
   private featureflagCreateDateSort = (
     ffA: Featureflag,
     ffB: Featureflag
   ): number => {
     return ffB.createDate.valueOf() - ffA.createDate.valueOf();
-  };
+  }
 
   private featureflagTenantSort = (tenant: string) => (
     ffA: Featureflag,
@@ -137,21 +147,21 @@ export default class FeatureflagList extends Component<
       return this.featureflagCreateDateSort(ffA, ffB);
     }
     return ffA_active ? -1 : 1;
-  };
+  }
 
   public applyFeatureflagSort = (
     featureflags: Featureflag[]
   ): Featureflag[] => {
     return featureflags.sort(this.state.featureFlagSort);
-  };
+  }
 
-  public setFeatureflagSort = (tenant: string = '') => () => {
+  public setFeatureflagSort = (tenant: string = "") => () => {
     const sortFunc =
-      tenant !== ''
+      tenant !== ""
         ? this.featureflagTenantSort(tenant)
         : this.featureflagCreateDateSort;
     this.setState({ ...this.state, featureFlagSort: sortFunc });
-  };
+  }
 
   public render(): JSX.Element {
     return (
@@ -169,7 +179,7 @@ export default class FeatureflagList extends Component<
                 active={!!this.state.newFeatureName.length}
                 onClick={this.createNewFeatureFlag}
               >
-                Create New Featureflag
+                create new flag
               </Button>
             </InputGroup.Append>
           </InputGroup>
@@ -188,7 +198,7 @@ export default class FeatureflagList extends Component<
                 active={!!this.state.featureFilter.length}
                 onClick={this.clearFilter}
               >
-                X
+                clear
               </Button>
             </InputGroup.Append>
           </InputGroup>
@@ -216,7 +226,7 @@ export default class FeatureflagList extends Component<
                       as="select"
                       onChange={this.setOverride(t)}
                       value={t.override}
-                      style={{ width: 100 + 'px', display: 'inline-block' }}
+                      style={{ width: 100 + "px", display: "inline-block" }}
                     >
                       <option key="" value="">
                         ----
