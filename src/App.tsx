@@ -19,6 +19,7 @@ class App extends Component<
     newApplicationName: string;
     newApplicationTenants: string[];
     creatingApplication: boolean;
+    editTenants: boolean;
   }
 > {
   private service: IFeatureflagServiceAPI;
@@ -32,7 +33,8 @@ class App extends Component<
       selectedApplicationId: 0,
       newApplicationName: "",
       newApplicationTenants: this.defaultTenants,
-      creatingApplication: false
+      creatingApplication: false,
+      editTenants: false
     };
 
     this.service.getApplications().then(apps => {
@@ -58,7 +60,8 @@ class App extends Component<
           selectedApplicationId: newApplication.id,
           newApplicationName: "",
           newApplicationTenants: this.defaultTenants,
-          creatingApplication: false
+          creatingApplication: false,
+          editTenants: false
         });
       });
   }
@@ -133,7 +136,17 @@ class App extends Component<
                 <Button
                   variant="secondary"
                   onClick={() =>
-                    this.setState({ ...this.state, creatingApplication: true })
+                    this.setState({ ...this.state, editTenants: true })
+                  }
+                >
+                  edit tenants
+                </Button>
+              </InputGroup.Append>
+              <InputGroup.Append>
+                <Button
+                  variant="primary"
+                  onClick={() =>
+                    this.setState({ ...this.state, creatingApplication: true, editTenants: true })
                   }
                 >
                   create new application
