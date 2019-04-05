@@ -7,11 +7,13 @@ import DatePicker from 'react-datepicker';
 
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
+import ConfirmModal from './ConfirmModal';
 
 export interface IFeatureFlagListItemProps {
   service: IFeatureflagServiceAPI;
   featureflag: Featureflag;
   overriddenTenants: string[];
+  onDelete: () => void;
 }
 
 export interface IFeatureFlagListItemState {
@@ -23,8 +25,9 @@ export interface IFeatureFlagListItemState {
 export default class FeatureFlagListItem extends React.Component<
   IFeatureFlagListItemProps,
   IFeatureFlagListItemState
-> {
+  > {
   private beforeEditState: Featureflag;
+  private confirmationModal: React.RefObject<ConfirmModal> = React.createRef<ConfirmModal>();
 
   private readonly rallyBase = 'https://rally1.rallydev.com/#/search?keywords=';
 
@@ -70,7 +73,7 @@ export default class FeatureFlagListItem extends React.Component<
 
   public save = () => {
     this.setState({ ...this.state, saving: true });
-    this.props.service.save(this.state.featureflag).then(f => {
+    this.props.service.saveFeatureflag(this.state.featureflag).then(f => {
       this.setState({ featureflag: f, editing: false, saving: false });
     });
   };
@@ -90,7 +93,13 @@ export default class FeatureFlagListItem extends React.Component<
 
   public delete = () => {
     this.setState({ ...this.state, saving: true });
-    this.props.service.delete(this.state.featureflag.id);
+    this.confirmationModal.current!.open(() => {
+      this.props.service.deleteFeatureflag(this.state.featureflag.id)
+        .then(() => {
+          this.setState({ ...this.state, saving: false });
+          this.props.onDelete();
+        });
+    });
   };
 
   public render() {
@@ -111,10 +120,10 @@ export default class FeatureFlagListItem extends React.Component<
                 />
               </div>
             ) : (
-              <div key={i}>
-                <a href={this.rallyUrl(id)}>{id}</a>
-              </div>
-            )
+                <div key={i}>
+                  <a href={this.rallyUrl(id)}>{id}</a>
+                </div>
+              )
           )}
           {this.state.editing && (
             <button name="newId" onClick={this.addRallyId}>
@@ -151,8 +160,8 @@ export default class FeatureFlagListItem extends React.Component<
           ) : f.expirationDate ? (
             f.expirationDate.toLocaleDateString()
           ) : (
-            'none'
-          )}
+                'none'
+              )}
         </td>
 
         {this.state.editing ? (
@@ -175,25 +184,35 @@ export default class FeatureFlagListItem extends React.Component<
             </ButtonGroup>
           </td>
         ) : (
-          <td>
-            <ButtonGroup>
-              <Button
-                variant="primary"
-                active={!this.state.saving}
-                onClick={this.edit}
-              >
-                Edit
+            <td>
+              <ButtonGroup>
+                <Button
+                  variant="primary"
+                  active={!this.state.saving}
+                  onClick={this.edit}
+                >
+                  Edit
               </Button>
-              <Button
-                variant="danger"
-                active={!this.state.saving}
-                onClick={this.delete}
-              >
-                Delete
+                <Button
+                  variant="danger"
+                  active={!this.state.saving}
+                  onClick={this.delete}
+                >
+                  Delete
               </Button>
-            </ButtonGroup>
-          </td>
-        )}
+              </ButtonGroup>
+              <ConfirmModal
+                ref={this.confirmationModal}
+                show={false}
+                confirm={() => null}
+                cancel={() => null}
+                titleText='Confirm Delete'
+                mainText='Are you sure?'
+                cancelButtonName='cancel'
+                confirmButtonName='delete'
+              ></ConfirmModal>
+            </td>
+          )}
       </tr>
     );
   }
