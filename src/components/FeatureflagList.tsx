@@ -1,6 +1,5 @@
 import './FeatureflagList.css';
 
-import { number } from 'prop-types';
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -11,6 +10,7 @@ import Application from '../models/Application';
 import Featureflag from '../models/Featureflag';
 import IFeatureflagServiceAPI from '../services/IFeatureflagServiceAPI';
 import FeatureFlagListItem, { IFeatureFlagListItemProps } from './FeatureflagListItem';
+import ConfirmModal from './ConfirmModal';
 
 interface IFeatureflagListProps {
   service: IFeatureflagServiceAPI;
@@ -28,7 +28,8 @@ interface IFeatureflagListState {
 export default class FeatureflagList extends Component<
   IFeatureflagListProps,
   IFeatureflagListState
-> {
+  > {
+
   public constructor(props: IFeatureflagListProps) {
     super(props);
     this.state = {
@@ -38,8 +39,10 @@ export default class FeatureflagList extends Component<
       tenants: [],
       featureFlagSort: this.featureflagCreateDateSort
     };
-    this.getTenants().then(() => this.getFeatureflags());
+    this.getData();
   }
+
+  public getData = () => this.getTenants().then(() => this.getFeatureflags());
 
   private getTenants = () => {
     return this.props.service.getApplications().then(apps => {
@@ -57,7 +60,7 @@ export default class FeatureflagList extends Component<
   }
 
   private getFeatureflags = () => {
-    return this.props.service.get(this.props.applicationId).then(ffs => {
+    return this.props.service.getFeatureflags(this.props.applicationId).then(ffs => {
       this.setState({ ...this.state, featureFlags: ffs });
       return ffs;
     });
@@ -65,7 +68,7 @@ export default class FeatureflagList extends Component<
 
   componentDidUpdate = (previousProps: IFeatureflagListProps) => {
     if (this.props.applicationId !== previousProps.applicationId) {
-      this.getFeatureflags();
+      this.getData();
     }
   }
 
@@ -84,7 +87,7 @@ export default class FeatureflagList extends Component<
       this.props.applicationId,
       this.tenantNames
     );
-    this.props.service.save(newFeatureflag).then(f => {
+    this.props.service.saveFeatureflag(newFeatureflag).then(f => {
       this.setState({
         ...this.state,
         featureFlags: [...this.state.featureFlags, f]
@@ -163,9 +166,13 @@ export default class FeatureflagList extends Component<
     this.setState({ ...this.state, featureFlagSort: sortFunc });
   }
 
+  public onFeatureFlagDelete = () => {
+    this.getFeatureflags();
+  }
+
   public render(): JSX.Element {
-    return (
-      <div className="featureflagList">
+    return (     
+      <div className="featureflagList">       
         <div className="smallForm">
           <InputGroup className="mb-3">
             <FormControl
@@ -265,6 +272,7 @@ export default class FeatureflagList extends Component<
                     overriddenTenants={this.state.tenants
                       .filter(t => t.override)
                       .map(t => t.name)}
+                    onDelete={this.onFeatureFlagDelete}
                   />
                 )
               )}

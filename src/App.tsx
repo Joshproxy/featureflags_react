@@ -10,19 +10,21 @@ import FeatureFlagList from './components/FeatureflagList';
 import Application from './models/Application';
 import FeatureFlagServiceAPI from './services/FeatureflagServiceAPI';
 import IFeatureflagServiceAPI from './services/IFeatureflagServiceAPI';
+import ApplicationConfiguration from './components/ApplicationConfiguration';
+import { AddTenantModal } from './components/AddTenantModal';
 
 class App extends Component<
   {},
   {
     applications: Application[];
     selectedApplicationId: number;
-    newApplicationName: string;
-    newApplicationTenants: string[];
     creatingApplication: boolean;
   }
-> {
+  > {
   private service: IFeatureflagServiceAPI;
-  private readonly defaultTenants = ["DEV", "QA", "MOCK", "DEMO", "PROD"];
+  private featureFlagListComponent: React.RefObject<FeatureFlagList> = React.createRef<FeatureFlagList>();
+  private addTenantModal: React.RefObject<AddTenantModal> = React.createRef<AddTenantModal>();
+
   constructor(props: any) {
     super(props);
     this.service = new FeatureFlagServiceAPI();
@@ -30,8 +32,6 @@ class App extends Component<
     this.state = {
       applications: [],
       selectedApplicationId: 0,
-      newApplicationName: "",
-      newApplicationTenants: this.defaultTenants,
       creatingApplication: false
     };
 
@@ -44,28 +44,16 @@ class App extends Component<
     });
   }
 
-  public newTenantInputElement = React.createRef<HTMLInputElement>();
-
-  public createNewApplication = () => {
-    this.service
-      .createNewApplication(
-        this.state.newApplicationName,
-        this.state.newApplicationTenants
-      )
-      .then(newApplication => {
-        this.setState({
-          ...this.state,
-          selectedApplicationId: newApplication.id,
-          newApplicationName: "",
-          newApplicationTenants: this.defaultTenants,
-          creatingApplication: false
-        });
-      });
+  public newApplicationCreated = (newApplication: Application) => {
+    this.setState({
+      ...this.state,
+      selectedApplicationId: newApplication.id,
+      creatingApplication: false
+    });
   }
 
-  public setNewApplicationName = (event: React.FormEvent<any>) => {
-    const target = event.target as HTMLInputElement;
-    this.setState({ ...this.state, newApplicationName: target.value });
+  public cancelNewApplication = () => {
+    this.setState({ ...this.state, creatingApplication: false })
   }
 
   public selectApplication = (event: React.FormEvent<any>) => {
@@ -76,40 +64,31 @@ class App extends Component<
     });
   }
 
-  public removeTenant = (id: string) => () => {
-    this.setState({
-      ...this.state,
-      newApplicationTenants: this.state.newApplicationTenants.filter(
-        t => t !== id
-      )
-    });
+  public summonAddTenantModal = () => {
+    this.addTenantModal.current!.handleShow();
   }
 
-  public addTenant = () => {
-    let newTenantValue =
-      this.newTenantInputElement.current !== null
-        ? this.newTenantInputElement.current.value
-        : "";
-    if (!!newTenantValue) {
-      let tenants = [...this.state.newApplicationTenants, newTenantValue];
-      this.setState({
-        ...this.state,
-        newApplicationTenants: tenants
-      });
-      this.newTenantInputElement.current!.value = '';
-    }
+  public addTenant = (newTenantName: string) => {
+    this.service
+      .addTenant(this.state.selectedApplicationId, newTenantName)
+      .then(() => {
+        this.addTenantModal.current!.handleClose();
+        this.featureFlagListComponent.current!.getData();
+      })
   }
-
-  public setApplication = () => {};
 
   render() {
     let applicationNames = this.state.applications.length
       ? this.state.applications
-          .map(a => a.name)
-          .filter((v, i, a) => a.indexOf(v) === i)
+        .map(a => a.name)
+        .filter((v, i, a) => a.indexOf(v) === i)
       : [];
     return (
       <div className="App">
+        <AddTenantModal
+          addTenant={this.addTenant}
+          ref={this.addTenantModal}
+        ></AddTenantModal>
         <header className="App-header mb-3">Feature Flags</header>
 
         {!this.state.creatingApplication && (
@@ -132,73 +111,37 @@ class App extends Component<
               <InputGroup.Append>
                 <Button
                   variant="secondary"
+                  onClick={this.summonAddTenantModal                  }
+                >
+                  add tenant
+                </Button>
+              </InputGroup.Append>
+              <InputGroup.Append>
+                <Button
+                  variant="primary"
                   onClick={() =>
                     this.setState({ ...this.state, creatingApplication: true })
                   }
                 >
-                  create new application
+                  create
                 </Button>
               </InputGroup.Append>
             </InputGroup>
           </div>
         )}
         {this.state.creatingApplication && (
-          <div className="smallForm">
-            <InputGroup className="mb-3">
-              <FormControl
-                type="text"
-                onChange={this.setNewApplicationName}
-                placeholder="New Application Name"
-              />
-              <InputGroup.Append>
-                <Button
-                  variant="primary"
-                  active={!!this.state.newApplicationName.length}
-                  onClick={this.createNewApplication}
-                >
-                  create
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() =>
-                    this.setState({ ...this.state, creatingApplication: false })
-                  }
-                >
-                  cancel
-                </Button>
-              </InputGroup.Append>
-            </InputGroup>
-            <h4>Tenants</h4>
-            {this.state.newApplicationTenants.map((id: string, i: number) => (
-              <InputGroup key={id}>
-                <InputGroup.Text className="form-control">{id}</InputGroup.Text>
-                <InputGroup.Append>
-                  <Button variant="secondary" onClick={this.removeTenant(id)}>
-                    remove
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
-            ))}
-            <InputGroup>
-              <input
-                type="text"
-                placeholder="New Tenant"
-                className="form-control"
-                ref={this.newTenantInputElement}
-              />
-              <InputGroup.Append>
-                <Button variant="secondary" onClick={this.addTenant}>
-                  add tenant
-                </Button>
-              </InputGroup.Append>
-            </InputGroup>
-          </div>
+          <ApplicationConfiguration
+            service={this.service}
+            saveCallback={this.newApplicationCreated}
+            cancelCallback={this.cancelNewApplication}
+          ></ApplicationConfiguration>
         )}
         {!this.state.creatingApplication &&
           this.state.selectedApplicationId && (
             <FeatureFlagList
               service={this.service}
               applicationId={this.state.selectedApplicationId}
+              ref={this.featureFlagListComponent}
             />
           )}
       </div>
